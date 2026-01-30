@@ -30,6 +30,7 @@ module agent_npu_regs (
     input logic [31:0]  perf_cmds,
     input logic [31:0]  perf_stall
 );
+
     localparam logic [31:0] ID_VALUE      = 32'h4E50_5531; // "NPU1"
     localparam logic [31:0] VERSION_VALUE = 31'h00010000; // 1.0
 
@@ -42,12 +43,6 @@ module agent_npu_regs (
     // ready/valid (simple always-ready slave)
     assign mmio_ready  = 1'b1;
     assign mmio_rvalid = mmio_valid & ~mmio_write;
-
-    // doorbell pulse on write to 0x01C
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) doorbell_pulse <= 1'b0;
-        else        doorbell_pulse <= 1'b0; // default
-    end
 
     // apply byte strobe
     function automatic [31:0] apply_wstrb(
@@ -81,7 +76,9 @@ module agent_npu_regs (
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             ctrl <= 32'd0;
+            doorbell_pulse <= 1'b0;
         end else begin
+            doorbell_pulse <= 1'b0; // default, 1-cycle pulse
             if (mmio_valid && mmio_write) begin
                 unique case (mmio_addr)
                     16'h00C: ctrl <= apply_wstrb(ctrl, mmio_wdata, mmio_wstrb);
