@@ -12,7 +12,7 @@ module agent_npu_regs (
     // MMIO response
     output logic        mmio_ready,
     output logic [31:0] mmio_rdata,
-    output logic        mmio_rvalid
+    output logic        mmio_rvalid,
 
     // outputs to "front-end" (Week1 stub)
     output logic        npu_enable,
@@ -32,7 +32,7 @@ module agent_npu_regs (
 );
 
     localparam logic [31:0] ID_VALUE      = 32'h4E50_5531; // "NPU1"
-    localparam logic [31:0] VERSION_VALUE = 31'h00010000; // 1.0
+    localparam logic [31:0] VERSION_VALUE = 32'h00010000; // 1.0
 
     logic [31:0] ctrl;       // 0x00C
     logic [31:0] irq_status; // 0x018 W1C
@@ -106,7 +106,7 @@ module agent_npu_regs (
             16'h004: mmio_rdata = VERSION_VALUE;
             16'h00C: mmio_rdata = ctrl;
             16'h010: mmio_rdata = status;
-            16'h018: mmio_rdata = irq_status
+            16'h018: mmio_rdata = irq_status;
             16'h040: mmio_rdata = perf_cycles;
             16'h044: mmio_rdata = perf_cmds;
             16'h048: mmio_rdata = perf_stall;
